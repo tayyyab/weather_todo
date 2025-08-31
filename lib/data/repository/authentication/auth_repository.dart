@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:weather_todo/utils/result.dart';
 
-abstract class AuthRepository extends ChangeNotifier {
+abstract class AuthRepository {
   /// Returns whether the user is authenticated.
   Future<bool> get isAuthenticated;
 

@@ -26,7 +26,6 @@ class AuthRepositoryImpl extends AuthRepository {
   Future<void> _fetch() async {
     var isLoggedIn = await _sharedPreferencesService.getIsLogin();
     _isAuthenticated = isLoggedIn;
-    notifyListeners();
   }
 
   @override

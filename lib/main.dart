@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:weather_todo/routing/router.dart';
 import 'package:weather_todo/ui/auth/provider/auth_state_provider.dart';
 import 'package:weather_todo/ui/core/ui/theme_mode/provider/theme_mode_provider.dart';
 import 'package:weather_todo/ui/core/theme/theme.dart';
 import 'package:weather_todo/ui/core/theme/utils.dart';
 
-void main() {
+void main() async {
+  // var path = await getApplicationDocumentsDirectory();
+  // Hive.init(path.path);
   runApp(const ProviderScope(child: MyApp()));
 }
 
