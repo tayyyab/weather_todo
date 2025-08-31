@@ -1,14 +1,14 @@
-import 'package:weather_todo/data/repository/authentication/auth_repository.dart';
+import 'package:weather_todo/ui/auth/provider/auth_state_provider.dart';
 import 'package:weather_todo/utils/result.dart';
 
 class LoginViewModel {
-  final AuthRepository _authRepository;
+  final AuthStateNotifier _authNotifier;
 
   String username = '';
   String password = '';
 
-  LoginViewModel({required AuthRepository authRepository})
-    : _authRepository = authRepository;
+  LoginViewModel({required AuthStateNotifier authNotifier})
+    : _authNotifier = authNotifier;
 
   updateUsername(String? value) {
     username = value ?? '';
@@ -22,6 +22,6 @@ class LoginViewModel {
     if (username.isEmpty || password.isEmpty) {
       return Result.failure('Username and password cannot be empty');
     }
-    return await _authRepository.login(username, password);
+    return await _authNotifier.login(username, password);
   }
 }

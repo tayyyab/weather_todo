@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weather_todo/routing/router.dart';
+import 'package:weather_todo/ui/auth/provider/auth_state_provider.dart';
 import 'package:weather_todo/ui/core/ui/theme_mode/provider/theme_mode_provider.dart';
 import 'package:weather_todo/ui/core/theme/theme.dart';
 import 'package:weather_todo/ui/core/theme/utils.dart';
@@ -19,14 +20,15 @@ class MyApp extends ConsumerWidget {
     MaterialTheme theme = MaterialTheme(textTheme);
     var mode = ref.watch(themeModeProvider);
 
+    var authState = ref.watch(authStateProvider);
+
     return MaterialApp.router(
       title: 'Weather ToDo Demo',
-
       debugShowCheckedModeBanner: false,
       theme: theme.light(),
       darkTheme: theme.dark(),
       themeMode: mode,
-      routerConfig: router(),
+      routerConfig: router(authState),
     );
   }
 }

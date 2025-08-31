@@ -1,29 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weather_todo/ui/auth/provider/login_provider.dart';
+import 'package:weather_todo/ui/auth/view_model/login_view_model.dart';
+import 'package:weather_todo/ui/auth/widget/login_button.dart';
+import 'package:weather_todo/ui/auth/widget/password_text_field.dart';
+import 'package:weather_todo/ui/auth/widget/username_text_field.dart';
 import 'package:weather_todo/ui/core/ui/theme_mode/theme_mode.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
-  _onLoginButtonPressed(BuildContext context, WidgetRef ref) async {
-    final result = await ref.read(loginViewModelProvider).login();
+  _login(BuildContext context, LoginViewModel viewModel) async {
+    final result = await viewModel.login();
     result.when(
       success: (data) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Login Successful')));
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Login Successful')));
+        }
       },
       failure: (error) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Login Failed: $error')));
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Login Failed: $error')));
+        }
       },
     );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var viewModel = ref.watch(loginViewModelProvider);
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: colors.primary,
@@ -66,28 +75,19 @@ class LoginScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     UsernameTextField(
                       onChanged: (value) {
-                        ref.read(loginViewModelProvider).updateUsername(value);
+                        viewModel.updateUsername(value);
                       },
                     ),
                     const SizedBox(height: 16),
                     PasswordTextField(
                       onChanged: (value) {
-                        ref.read(loginViewModelProvider).updatePassword(value);
+                        viewModel.updatePassword(value);
                       },
                     ),
 
                     const SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: SizedBox(
-                        height: 50,
-                        width: 150,
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.login),
-                          onPressed: () => _onLoginButtonPressed(context, ref),
-                          label: const Text('Login'),
-                        ),
-                      ),
+                    LoginButton(
+                      onPressed: () async => _login(context, viewModel),
                     ),
                   ],
                 ),
@@ -96,55 +96,6 @@ class LoginScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class UsernameTextField extends StatelessWidget {
-  const UsernameTextField({super.key, required this.onChanged});
-  final void Function(String) onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        prefixIcon: Icon(Icons.person),
-        hintText: 'Username',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      onChanged: onChanged,
-    );
-  }
-}
-
-class PasswordTextField extends StatefulWidget {
-  const PasswordTextField({super.key, required this.onChanged});
-  final void Function(String) onChanged;
-
-  @override
-  State<PasswordTextField> createState() => _PasswordTextFieldState();
-}
-
-class _PasswordTextFieldState extends State<PasswordTextField> {
-  var obscureText = true;
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        prefixIcon: Icon(Icons.lock),
-        suffixIcon: IconButton(
-          icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
-          onPressed: () {
-            setState(() {
-              obscureText = !obscureText;
-            });
-          },
-        ),
-        hintText: 'Password',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      obscureText: obscureText,
-      onChanged: widget.onChanged,
     );
   }
 }

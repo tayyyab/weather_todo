@@ -7,7 +7,11 @@ final authStateProvider = StateNotifierProvider<AuthStateNotifier, AuthState>((
   ref,
 ) {
   final authRepository = ref.watch(authRepositoryProvider);
-  return AuthStateNotifier(authRepository);
+  final notifier = AuthStateNotifier(authRepository);
+
+  Future.microtask(() => notifier.checkAuthStatus());
+
+  return notifier;
 });
 
 class AuthState {
@@ -34,32 +38,42 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
   final AuthRepository _authRepository;
 
   AuthStateNotifier(this._authRepository)
-    : super(AuthState(isAuthenticated: false)) {
-    _checkAuthStatus();
-  }
+    : super(AuthState(isAuthenticated: false));
 
-  Future<void> _checkAuthStatus() async {
+  Future<void> checkAuthStatus() async {
     final isAuth = await _authRepository.isAuthenticated;
-    state = state.copyWith(isAuthenticated: isAuth);
+    if (mounted) {
+      state = state.copyWith(isAuthenticated: isAuth);
+    }
   }
 
   Future<Result> login(String username, String password) async {
-    state = state.copyWith(isLoading: true, error: null);
     final result = await _authRepository.login(username, password);
 
-    result.when(
-      success: (msg) {
-        state = state.copyWith(isAuthenticated: true, isLoading: false);
-      },
-      failure: (msg) {
-        state = state.copyWith(isLoading: false, error: msg);
-      },
-    );
+    var lastAuthState = state.isAuthenticated;
+    if (mounted) {
+      result.when(
+        success: (msg) {
+          state = state.copyWith(isAuthenticated: true, isLoading: false);
+        },
+        failure: (msg) {
+          if (lastAuthState != state.isAuthenticated) {
+            state = state.copyWith(
+              isAuthenticated: false,
+              isLoading: false,
+              error: msg,
+            );
+          }
+        },
+      );
+    }
     return result;
   }
 
   Future<void> logout() async {
     await _authRepository.logout();
-    state = state.copyWith(isAuthenticated: false);
+    if (mounted) {
+      state = state.copyWith(isAuthenticated: false);
+    }
   }
 }
