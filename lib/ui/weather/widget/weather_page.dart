@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:weather_todo/ui/weather/view_model.dart/weather_location_view_model.dart';
+import 'package:weather_todo/ui/core/ui/widget/button.dart';
 import 'package:weather_todo/ui/weather/view_model.dart/weather_vew_model.dart';
 import 'package:weather_todo/ui/weather/widget/weather_image_builder.dart';
 
@@ -11,15 +11,15 @@ class WeatherPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var weather = ref.watch(weatherProvider);
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () async {
-          // Trigger a refresh of the weather data
-          ref.invalidate(weatherProvider);
-        },
-        child: ListView(
-          children: [
-            weather.when(
+    return RefreshIndicator(
+      onRefresh: () async {
+        // Trigger a refresh of the weather data
+        ref.invalidate(weatherProvider);
+      },
+      child: Column(
+        children: [
+          Expanded(
+            child: weather.when(
               data: (data) {
                 if (data.list == null || data.list!.isEmpty) {
                   return const Center(child: Text('No weather data available'));
@@ -32,9 +32,9 @@ class WeatherPage extends ConsumerWidget {
                 final now = DateTime.now();
                 final currentWeather = allWeatherData.reduce((a, b) {
                   final aDiff =
-                      a.dtTxt?.difference(now).abs() ?? Duration(days: 999);
+                      a.dtTxt?.difference(now).abs() ?? Duration(hours: 1);
                   final bDiff =
-                      b.dtTxt?.difference(now).abs() ?? Duration(days: 999);
+                      b.dtTxt?.difference(now).abs() ?? Duration(hours: 1);
                   return aDiff < bDiff ? a : b;
                 });
 
@@ -86,17 +86,24 @@ class WeatherPage extends ConsumerWidget {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) => Center(child: Text('Error: $error')),
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.refresh),
-        onPressed: () async {
-          var location = await ref
-              .read(weatherLocationProvider)
-              .getUserLocation();
-          debugPrint(location.toString());
-        },
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: SizedBox(
+                width: 150,
+                child: MyIconButton(
+                  icon: Icon(Icons.location_city),
+                  label: 'City Weather',
+                  onPressed: () {
+                    ref.invalidate(weatherProvider);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -104,7 +111,7 @@ class WeatherPage extends ConsumerWidget {
   Widget _buildCurrentWeatherDisplay(currentWeather, String cityName) {
     // Format the date properly
     final dateFormatter = DateFormat('EEEE, MMMM d, yyyy');
-    final timeFormatter = DateFormat('h:mm a');
+    final timeFormatter = DateFormat('hh:mm a');
     final formattedDate = currentWeather.dtTxt != null
         ? dateFormatter.format(currentWeather.dtTxt!)
         : 'Date unavailable';
@@ -175,7 +182,7 @@ class WeatherPage extends ConsumerWidget {
   }
 
   Widget _buildHorizontalWeatherCard(weatherItem, bool isCurrentWeather) {
-    final timeFormatter = DateFormat('HH:mm');
+    final timeFormatter = DateFormat('hh:mm a');
     final dateFormatter = DateFormat('MMM d');
 
     final time = weatherItem.dtTxt != null

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -40,6 +38,8 @@ class MyApp extends ConsumerWidget {
       theme: theme.light(),
       darkTheme: theme.dark(),
       themeMode: mode,
+      themeAnimationDuration: const Duration(milliseconds: 600),
+      themeAnimationCurve: Curves.easeInOut,
       routerConfig: router(authState),
     );
   }

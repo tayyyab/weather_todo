@@ -12,56 +12,45 @@ final todoListProvider = AsyncNotifierProvider<TodoList, List<Todo>>(
 class TodoList extends AsyncNotifier<List<Todo>> {
   @override
   Future<List<Todo>> build() async {
-    var repoAsync = ref.read(todoRepositoryProvider);
-    return repoAsync.when(
-      data: (repo) => repo.todos,
-      loading: () => <Todo>[],
-      error: (error, stack) => <Todo>[],
-    );
+    // Wait for the repository to be available
+    final repo = await ref.watch(todoRepositoryProvider.future);
+    // Get todos from the repository
+    final todos = await repo.getTodos();
+    return todos;
   }
 
   Future<void> add(String title, String? description) async {
-    var repoAsync = ref.read(todoRepositoryProvider);
-    await repoAsync.when(
-      data: (repo) async {
-        var newTodo = Todo(
-          id: _uuid.v4(),
-          title: title,
-          description: description,
-          isCompleted: false,
-        );
-        repo.addTodo(newTodo);
-        var currentState = await future;
-        state = AsyncValue.data([...currentState, newTodo]);
-      },
-      loading: () async {},
-      error: (error, stack) async {},
+    final repo = await ref.read(todoRepositoryProvider.future);
+    var newTodo = Todo(
+      id: _uuid.v4(),
+      title: title,
+      description: description,
+      isCompleted: false,
     );
+    repo.addTodo(newTodo);
+
+    // Update the state
+    var currentState = await future;
+    state = AsyncValue.data([...currentState, newTodo]);
   }
 
   Future<void> toggle(String id) async {
-    var repoAsync = ref.read(todoRepositoryProvider);
-    await repoAsync.when(
-      data: (repo) async {
-        var currentState = await future;
-        var newState = [
-          for (final todo in currentState)
-            if (todo.id == id)
-              Todo(
-                id: todo.id,
-                isCompleted: !todo.isCompleted,
-                title: todo.title,
-                description: todo.description,
-              )
-            else
-              todo,
-        ];
-        repo.updateTodo(newState.firstWhere((todo) => todo.id == id));
-        state = AsyncValue.data(newState);
-      },
-      loading: () async {},
-      error: (error, stack) async {},
-    );
+    final repo = await ref.read(todoRepositoryProvider.future);
+    var currentState = await future;
+    var newState = [
+      for (final todo in currentState)
+        if (todo.id == id)
+          Todo(
+            id: todo.id,
+            isCompleted: !todo.isCompleted,
+            title: todo.title,
+            description: todo.description,
+          )
+        else
+          todo,
+    ];
+    repo.updateTodo(newState.firstWhere((todo) => todo.id == id));
+    state = AsyncValue.data(newState);
   }
 
   Future<void> edit({
@@ -69,42 +58,30 @@ class TodoList extends AsyncNotifier<List<Todo>> {
     required String title,
     required String? description,
   }) async {
-    var repoAsync = ref.read(todoRepositoryProvider);
-    await repoAsync.when(
-      data: (repo) async {
-        var currentState = await future;
-        var newState = [
-          for (final todo in currentState)
-            if (todo.id == id)
-              Todo(
-                id: todo.id,
-                isCompleted: todo.isCompleted,
-                title: title,
-                description: description,
-              )
-            else
-              todo,
-        ];
-        repo.updateTodo(newState.firstWhere((todo) => todo.id == id));
-        state = AsyncValue.data(newState);
-      },
-      loading: () async {},
-      error: (error, stack) async {},
-    );
+    final repo = await ref.read(todoRepositoryProvider.future);
+    var currentState = await future;
+    var newState = [
+      for (final todo in currentState)
+        if (todo.id == id)
+          Todo(
+            id: todo.id,
+            isCompleted: todo.isCompleted,
+            title: title,
+            description: description,
+          )
+        else
+          todo,
+    ];
+    repo.updateTodo(newState.firstWhere((todo) => todo.id == id));
+    state = AsyncValue.data(newState);
   }
 
   Future<void> remove(Todo target) async {
-    var repoAsync = ref.read(todoRepositoryProvider);
-    await repoAsync.when(
-      data: (repo) async {
-        repo.removeTodo(target);
-        var currentState = await future;
-        state = AsyncValue.data(
-          currentState.where((todo) => todo.id != target.id).toList(),
-        );
-      },
-      loading: () async {},
-      error: (error, stack) async {},
+    final repo = await ref.read(todoRepositoryProvider.future);
+    repo.removeTodo(target);
+    var currentState = await future;
+    state = AsyncValue.data(
+      currentState.where((todo) => todo.id != target.id).toList(),
     );
   }
 }

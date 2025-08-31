@@ -27,4 +27,9 @@ class TodoRepositoryImpl extends TodoRepository {
   Future<List<Todo>> get todos async {
     return _todoHiveStore.getAllTodos();
   }
+
+  @override
+  Future<List<Todo>> getTodos() async {
+    return _todoHiveStore.getAllTodos();
+  }
 }
