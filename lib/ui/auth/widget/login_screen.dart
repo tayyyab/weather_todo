@@ -11,6 +11,7 @@ class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   _login(BuildContext context, LoginViewModel viewModel) async {
+    FocusScope.of(context).unfocus();
     final result = await viewModel.login();
     result.when(
       success: (data) {
@@ -64,9 +65,9 @@ class LoginScreen extends ConsumerWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: ListView(
+                  // crossAxisAlignment: CrossAxisAlignment.start,
+                  // mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Login ',
@@ -74,12 +75,14 @@ class LoginScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     UsernameTextField(
+                      key: const ValueKey('username_field'),
                       onChanged: (value) {
                         viewModel.updateUsername(value);
                       },
                     ),
                     const SizedBox(height: 16),
                     PasswordTextField(
+                      key: const ValueKey('password_field'),
                       onChanged: (value) {
                         viewModel.updatePassword(value);
                       },

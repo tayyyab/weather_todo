@@ -12,6 +12,7 @@ class LoginButton extends StatelessWidget {
       child: SizedBox(
         height: 40,
         child: StateFullButton(
+          key: const ValueKey('login_button'),
           icon: const Icon(Icons.login),
           label: 'Login',
           onPressed: onPressed,

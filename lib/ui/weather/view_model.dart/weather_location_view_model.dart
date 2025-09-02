@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:location/location.dart';
+import 'package:weather_todo/domain/exceptions/location_exception.dart';
 
 final weatherLocationProvider = Provider<WeatherLocationViewModel>(
   (ref) => WeatherLocationViewModel(),
@@ -28,7 +29,7 @@ class WeatherLocationViewModel {
       LocationData locationData = await Location.instance.getLocation();
       return locationData;
     } catch (e) {
-      rethrow;
+      throw LocationException('Failed to get location', details: e.toString());
     }
   }
 }

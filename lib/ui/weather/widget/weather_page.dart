@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:weather_todo/domain/exceptions/location_exception.dart';
+import 'package:weather_todo/domain/exceptions/weather_exception.dart';
 import 'package:weather_todo/ui/core/ui/widget/button.dart';
 import 'package:weather_todo/ui/weather/view_model.dart/weather_vew_model.dart';
 import 'package:weather_todo/ui/weather/widget/weather_image_builder.dart';
@@ -84,7 +86,15 @@ class WeatherPage extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(child: Text('Error: $error')),
+              error: (error, stack) {
+                if (error is WeatherException) {
+                  return Center(child: Text(error.message));
+                } else if (error is LocationException) {
+                  return Center(child: Text(error.message));
+                }
+
+                return Center(child: Text('Error: $error'));
+              },
             ),
           ),
           Align(
