@@ -47,9 +47,13 @@ class LoginScreen extends ConsumerWidget {
         children: [
           Expanded(
             child: Center(
-              child: Text(
-                'Welcome to Weather ToDo',
-                style: Theme.of(context).textTheme.headlineMedium,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.6,
+                child: Text(
+                  'Welcome to Weather ToDo',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
               ),
             ),
           ),
@@ -64,11 +68,11 @@ class LoginScreen extends ConsumerWidget {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(32.0),
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
                 child: ListView(
-                  // crossAxisAlignment: CrossAxisAlignment.start,
-                  // mainAxisAlignment: MainAxisAlignment.center,
+                  shrinkWrap: true,
                   children: [
+                    SizedBox(height: 100),
                     Text(
                       'Login ',
                       style: Theme.of(context).textTheme.headlineSmall,

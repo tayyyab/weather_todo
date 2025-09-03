@@ -46,6 +46,7 @@ flutter:
 
   assets:
     - assets/weather/
+    - config.json
 
 
   # fonts:
